@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RCB Quiz — Owned by Srivin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem 1rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #E24B4A;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    #quiz-wrap {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: #2a2a2a;
+      border-radius: 99px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 6px;
+      background: #E24B4A;
+      border-radius: 99px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .rcb-badge {
+      background: #E24B4A;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 99px;
+    }
+
+    .score-tracker {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .q-card {
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 16px;
+      padding: 1.75rem;
+    }
+
+    .q-meta {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .q-text {
+      font-size: 17px;
+      font-weight: 600;
+      color: #f0f0f0;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .opt-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      background: #242424;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 13px 16px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.15s, border-color 0.15s;
+      text-align: left;
+    }
+
+    .opt-btn:hover:not(:disabled) {
+      background: #2e2e2e;
+      border-color: #444;
+    }
+
+    .opt-key {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #333;
+      border: 1px solid #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+      color: #aaa;
+    }
+
+    .opt-text {
+      font-size: 14px;
+      color: #e0e0e0;
+    }
+
+    .opt-btn.correct { background: #1a2e1a; border-color: #3B6D11; }
+    .opt-btn.correct .opt-key { background: #3B6D11; color: #fff; border-color: #3B6D11; }
+
+    .opt-btn.wrong { background: #2e1a1a; border-color: #E24B4A; }
+    .opt-btn.wrong .opt-key { background: #E24B4A; color: #fff; border-color: #E24B4A; }
+
+    .feedback {
+      font-size: 14px;
+      margin: 0.75rem 0 0;
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+
+    .feedback.correct { background: #1a2e1a; color: #97C459; }
+    .feedback.wrong { background: #2e1a1a; color: #F09595; }
+
+    #next-btn {
+      margin-top: 1.25rem;
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      border-radius: 10px;
+      background: #E24B4A;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      display: none;
+      transition: background 0.15s;
+    }
+
+    #next-btn:hover { background: #c93c3b; }
+
+    #score-card {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+      display: none;
+    }
+
+    .trophy { font-size: 56px; margin-bottom: 1rem; }
+
+    .score-big {
+      font-size: 64px;
+      font-weight: 700;
+      color: #E24B4A;
+      line-height: 1;
+    }
+
+    .score-label {
+      font-size: 14px;
+      color: #666;
+      margin: 0.5rem 0 1.5rem;
+    }
+
+    .verdict {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f0f0f0;
+      margin-bottom: 0.4rem;
+    }
+
+    .verdict-sub {
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 2rem;
+    }
+
+    #retry-btn {
+      padding: 13px 40px;
+      font-size: 15px;
+      background: #E24B4A;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+
+    #retry-btn:hover { background: #c93c3b; }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 13px;
+      color: #444;
+      text-align: center;
+    }
+
+    footer span { color: #E24B4A; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🏏 RCB Quiz</h1>
+    <p>How well do you know Royal Challengers Bengaluru?</p>
+  </header>
+
+  <div id="quiz-wrap">
+    <div class="top-row">
+      <span class="rcb-badge">RCB Quiz</span>
+      <span class="score-tracker" id="score-tracker">Score: 0</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div id="q-area"></div>
+    <div id="score-card"></div>
+  </div>
+
+  <footer>owned by <span>srivin</span></footer>
+
+  <script>
+    const questions = [
+      { q: "Who is the highest wicket taker for RCB?", opts: ["Siraj", "Chahal", "Harshal Patel", "Starc"], ans: 1 },
+      { q: "Who was RCB's first ever captain?", opts: ["Rahul Dravid", "Anil Kumble", "Jack Kallis", "Zaheer Khan"], ans: 0 },
+      { q: "When did RCB reach the finals for the first ever time?", opts: ["2016", "2009", "2011", "2008"], ans: 1 },
+      { q: "Who out of these players has led RCB at least once?", opts: ["ABD", "Chris Gayle", "Jack Kallis", "Shane Watson"], ans: 3 },
+      { q: "Which RCB bowler has taken the highest number of wickets in a season?", opts: ["Harshal Patel", "Siraj", "Chahal", "Starc"], ans: 0 }
+    ];
+
+    const keys = ['A', 'B', 'C', 'D'];
+    let current = 0, score = 0, answered = false;
+
+    function render() {
+      document.getElementById('progress-fill').style.width = (current / questions.length * 100) + '%';
+      document.getElementById('score-tracker').textContent = 'Score: ' + score;
+      const q = questions[current];
+
+      let html = `<div class="q-card">
+        <div class="q-meta">Question ${current + 1} of ${questions.length}</div>
+        <div class="q-text">${q.q}</div>`;
+      q.opts.forEach((o, i) => {
+        html += `<button class="opt-btn" id="opt${i}" onclick="pick(${i})">
+          <span class="opt-key">${keys[i]}</span>
+          <span class="opt-text">${o}</span>
+        </button>`;
+      });
+      html += `<div id="feedback"></div>
+        <button id="next-btn" onclick="next()">${current < questions.length - 1 ? 'Next question →' : 'See my result →'}</button>
+      </div>`;
+
+      document.getElementById('q-area').innerHTML = html;
+      answered = false;
+    }
+
+    function pick(idx) {
+      if (answered) return;
+      answered = true;
+      const q = questions[current];
+      const fb = document.getElementById('feedback');
+      document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+
+      if (idx === q.ans) {
+        score++;
+        document.getElementById('opt' + idx).className = 'opt-btn correct';
+        fb.className = 'feedback correct';
+        fb.textContent = '✓ Correct!';
+      } else {
+        document.getElementById('opt' + idx).className = 'opt-btn wrong';
+        document.getElementById('opt' + q.ans).className = 'opt-btn correct';
+        fb.className = 'feedback wrong';
+        fb.textContent = '✗ Wrong! Correct answer: ' + q.opts[q.ans];
+      }
+
+      document.getElementById('score-tracker').textContent = 'Score: ' + score;
+      document.getElementById('next-btn').style.display = 'block';
+      document.getElementById('progress-fill').style.width = ((current + 1) / questions.length * 100) + '%';
+    }
+
+    function next() {
+      current++;
+      if (current >= questions.length) { showResult(); return; }
+      render();
+    }
+
+    function showResult() {
+      document.getElementById('q-area').innerHTML = '';
+      document.getElementById('progress-fill').style.width = '100%';
+
+      const verdicts = [
+        { v: "Doob ke marja 😬", s: "Maybe start by watching a match first?" },
+        { v: "Lavde ka RCB fan 💀", s: "You call yourself an RCB fan?" },
+        { v: "Lavde ka RCB fan 💀", s: "A little more than a casual..." },
+        { v: "Chal kuch toh aata hai 😅", s: "Not bad, but room to grow!" },
+        { v: "Kya tukka maara hai! 🔥", s: "Almost a true RCB encyclopedia!" },
+        { v: "Ee sala cup namde! 🏆", s: "Pure RCB blood runs through your veins." }
+      ];
+
+      const vd = verdicts[score];
+      const sc = document.getElementById('score-card');
+      sc.style.display = 'block';
+      sc.innerHTML = `
+        <div class="trophy">🏏</div>
+        <div class="score-big">${score}/5</div>
+        <div class="score-label">questions correct</div>
+        <div class="verdict">${vd.v}</div>
+        <div class="verdict-sub">${vd.s}</div>
+        <button id="retry-btn" onclick="restart()">Play again</button>
+      `;
+    }
+
+    function restart() {
+      current = 0; score = 0;
+      document.getElementById('score-card').style.display = 'none';
+      document.getElementById('progress-fill').style.width = '0%';
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
